@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <appSettings>
+        <add key="KeyboardIdMatch" value="{00001812-0000-1000-8000-00805f9b34fb}" />
+        <add key="InputConnected" value="17" />
+        <add key="InputRemoved" value="15" />
+    </appSettings>
+</configuration>
