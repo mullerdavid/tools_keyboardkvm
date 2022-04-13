@@ -24,15 +24,15 @@ namespace KeyboardKVM
             public uint dbcc_reserved;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         struct DEV_BROADCAST_DEVICEINTERFACE
         {
             public int dbcc_size;
             public int dbcc_devicetype;
             public int dbcc_reserved;
             public Guid dbcc_classguid;
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 512)]
-            public byte[] dbcc_name;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
+            public string dbcc_name;
         }
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -62,11 +62,7 @@ namespace KeyboardKVM
                 DEV_BROADCAST_DEVICEINTERFACE? dbi = (DEV_BROADCAST_DEVICEINTERFACE?)Marshal.PtrToStructure(lParam, typeof(DEV_BROADCAST_DEVICEINTERFACE));
                 if (dbi.HasValue)
                 {
-                    int size = dbi.Value.dbcc_size - (int)Marshal.OffsetOf(typeof(DEV_BROADCAST_DEVICEINTERFACE), "dbcc_name");
-                    byte[] buffer = new byte[size];
-                    Array.Copy(dbi.Value.dbcc_name, buffer, size);
-                    string name = System.Text.Encoding.Unicode.GetString(buffer);
-                    return name;
+                    return dbi.Value.dbcc_name;
                 }
             }
             return "";
