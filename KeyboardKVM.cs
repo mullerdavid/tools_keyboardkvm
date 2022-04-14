@@ -34,7 +34,7 @@ namespace KeyboardKVM
 		private int cInputRemoved;
 
 		private int sTargetInput;
-		private bool sShiftDown;
+		private DateTime sShiftReleasedTime;
 		private System.Threading.Timer timer;
 
 		public KeyboardKVM(String[] args)
@@ -60,11 +60,11 @@ namespace KeyboardKVM
 			Int32.TryParse(GetSettingDefault("InputRemoved", ""), out cInputRemoved);
 			DeviceNotification.RegisterDeviceNotificationManaged(this.Handle, DeviceNotification.GUID_DEVINTERFACE_KEYBOARD);
 			timer = new System.Threading.Timer(_ => SwitchTarget());
-			sShiftDown = false;
+			sShiftReleasedTime = new DateTime(0);
 			InterceptKeys.KeyboardProc shiftcheck = new InterceptKeys.KeyboardProc((int vkCode, bool down) => {
-                    if (vkCode == InterceptKeys.VK_LSHIFT || vkCode == InterceptKeys.VK_RSHIFT)
+                    if ((vkCode == InterceptKeys.VK_LSHIFT || vkCode == InterceptKeys.VK_RSHIFT) && !down)
 					{
-						sShiftDown = down;
+						sShiftReleasedTime = DateTime.Now;
 					}
                 });
 			InterceptKeys.SetHook(shiftcheck);
@@ -99,14 +99,15 @@ namespace KeyboardKVM
 				{
                     case DeviceNotification.DBT_DEVICEARRIVAL:
                         name = DeviceNotification.ExtractInfo(m.LParam);
-						if (name.Contains(cKeyboardIdMatch) && !sShiftDown)
+						if (name.Contains(cKeyboardIdMatch))
 						{
 							SwitchTargetDelayed(cInputConnected);
 						}
 						break;
                     case DeviceNotification.DBT_DEVICEREMOVECOMPLETE:
                         name = DeviceNotification.ExtractInfo(m.LParam);
-						if (name.Contains(cKeyboardIdMatch) && !sShiftDown)
+						double interval = (DateTime.Now - sShiftReleasedTime).TotalMilliseconds;
+						if (name.Contains(cKeyboardIdMatch) && 2000<interval)
 						{
 							SwitchTargetDelayed(cInputRemoved);
 						}

@@ -5,7 +5,7 @@ SET DOTNET_PATH=c:\Windows\Microsoft.NET\Framework\v4.0.30319\
 Edit config.xml and place it next to the executable.
 
 Right click on tray icon to exit.
-If shift key is pressed while keyboard is removed then switching is skipped.
+If shift key is relesed 2s before keyboard is removed then switching is skipped.
 
 KeyboardIdMatch can be used to match a keyboard InstanceId. The program is checking that the event contains this string.
 To get keyboard GUID you can use the Get-PnpDevice powershell cmdlet.
